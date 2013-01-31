@@ -221,7 +221,7 @@ if [ "${ARCH}" = "FreeBSD" ] ; then
   export LANG=C
 fi
 
-if -f .zshrc.local ; then
+if test -f .zshrc.local ; then
   source .zshrc.local
 fi
 
