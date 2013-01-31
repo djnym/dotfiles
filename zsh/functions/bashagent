@@ -1,0 +1,183 @@
+#
+# This software is released under the Gnu Public License
+# you can retrieve a copy from http://www.gnu.org/
+#
+# bashagent:
+#   ssh-agent management fun by fess. <fess@ddv.com>
+#   The name is historical it should work on any POSIX shell.
+#
+# Version:
+#   2.8
+#
+# Usage: 
+#   . ./.bashagent
+#   [ reagent  | findagent ] 
+#   [ screenagent ]
+#
+#   sourcing this script defines the functions findagent, 
+#   reagent and screenagent:
+#
+#     findagent - finds a running ssh agent and sets your SSH_AUTH_SOCK
+#       environment variable for you.
+#     reagent - tries to find an agent and if it can't it starts one.
+#        using locking so if something starts up many instances 
+#        at once you still start one agent
+#     screenagent - if you are running screen, this will export
+#       your current agent env var to the parent screen session.
+
+_bashagent_lockfile=$HOME/.bashagent.lock
+_bashagent_got_lock=0
+
+_bashagent_lock () 
+  {
+    echo $$ > "$_bashagent_lockfile.$$" || \
+      {
+	echo "bashagent: Cannot create $_bashagent_lockfile.$$";
+	rm -f "$_bashagent_lockfile.$$"
+	return 1;
+      }
+
+    unset ct;
+    # keep trying to get the lock. ( unless we have it already )
+    while test "$_bashagent_got_lock" != "1"
+      do
+
+        # get lock  (NFS safe lock trickery, supposedly.)
+        ln "$_bashagent_lockfile.$$" "$_bashagent_lockfile" 2>/dev/null
+        perl -e 'exit ((stat($ARGV[0]))[3] != 2 )' "$_bashagent_lockfile.$$" && break
+
+        # otherwise:
+        unset _bashagent_pid
+        read _bashagent_pid >/dev/null 2>&1 < "$_bashagent_lockfile" 
+
+        # if we already have the lock, just break.
+        test "$_bashagent_pid" = "$$" && break
+
+        # check if the pid that has the lock is still there.
+	let ct=$ct+1
+	if kill -0 $_bashagent_pid >/dev/null 2>&1; then  
+            echo "bashagent: waiting on $_bashagent_pid for lockfile (pass $ct)" >&2
+	    sleep 1
+	else 
+	    rm -f "$_bashagent_lockfile" 
+	fi
+
+        # but only try five times
+	if test $ct -gt 4; then
+	    rm -f $_bashagent_lockfile.$$
+            echo "bashagent: Could not get lockfile. tried $ct times." >&2
+	    return 1 
+	fi
+
+      done
+    rm -f "$_bashagent_lockfile.$$"
+    _bashagent_got_lock=1;
+  }
+
+_bashagent_unlock () 
+  {
+    if test "$_bashagent_got_lock" = "1"; then
+      rm -f "$_bashagent_lockfile"
+      _bashagent_got_lock=0
+    else 
+      unset _bashagent_pid
+      read _bashagent_pid >/dev/null 2>&1 < "$_bashagent_lockfile" 
+      if test "$_bashagent_pid" = "$$"; then
+        rm -f "$_bashagent_lockfile"
+      elif test "x$_bashagent_pid" = "x"; then
+        echo "Not locked" >&2
+      else
+        echo "Sorry, can't unlock. Lockfile belongs to: $_bashagent_pid" >&2
+      fi
+    fi
+  }
+
+
+######################################################################
+# different versions of ssh-add use return codes differently.
+# newer openssh's return 2 on failure, 0 on  success, and one if there
+# was an agent but no keys. older versions just return 1 on failure
+# and 0 on success.  
+
+# This is a quick hack to deal with that, but something more elegant
+# may need to be done.
+
+ssh_version=`ssh -V  2>&1| sed -e 's/,.*//'`
+case $ssh_version in 
+  OpenSSH_3.0.1p1)
+    _bashagent_test () 
+      {
+	ssh-add -l  >/dev/null 2>&1
+      }
+    ;;
+  *)
+    _bashagent_test () 
+      {
+	ssh-add -l  >/dev/null 2>&1
+	case "$?" in
+	  0|1)
+	    return 0
+	    ;;
+	  *)
+	    return 1
+	    ;;
+	esac
+      }
+    ;;
+esac
+
+findagent () 
+  {
+    socket_dir="/tmp/."
+
+    if _bashagent_test; then
+        true
+    else
+	unset SSH_AUTH_SOCK
+        unset SSH_AGENT_PID
+	for socket in \
+	    `find $socket_dir -xdev -print 2>/dev/null | egrep 'ssh-.*/agent.*'`
+	do
+	    perl -e 'exit -O shift' $socket && continue
+	    perl -e 'exit -S shift' $socket && continue
+
+	    export SSH_AUTH_SOCK=$socket
+
+	    if _bashagent_test; then
+	      break
+	    else
+	      rm -f $SSH_AUTH_SOCK 
+	      unset SSH_AUTH_SOCK
+	    fi
+	done
+    fi
+    if [ ! -z "$SSH_AUTH_SOCK" ]; then
+
+      # this simply doesn't work
+      #SSH_AGENT_PID=`echo $SSH_AUTH_SOCK | sed -e 's/^.*agent\.//'`
+      #export SSH_AGENT_PID
+
+      export SSH_AUTH_SOCK
+      ssh-add -l
+    fi
+  }
+
+reagent () 
+  {
+    if _bashagent_lock ; then
+      findagent
+      if [ -z "$SSH_AUTH_SOCK" ]; then
+	  echo "Starting new ssh-agent"
+	  eval "`ssh-agent`"
+	  ssh-add -l
+      fi
+      _bashagent_unlock
+    fi
+ }
+
+screenagent ()
+  {
+    test -z "$STY" && return
+    screen -X unsetenv SSH_AUTH_SOCK
+    screen -X setenv SSH_AUTH_SOCK "$SSH_AUTH_SOCK"
+  }

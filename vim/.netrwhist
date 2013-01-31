@@ -1,0 +1,5 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =3
+let g:netrw_dirhist_1='/Volumes/Extra/molinaro/projects/personal/molinaro/bitlbee/purple/djnym/logs/jabber/8178_21150@chat.hipchat.com'
+let g:netrw_dirhist_2='/Volumes/Extra/molinaro/projects/personal/molinaro/bitlbee/purple/djnym/logs/jabber/8178_21150@chat.hipchat.com/8178___openx_-_the_water_cooler@conf.hipchat.com.chat'
+let g:netrw_dirhist_3='/Users/molinaro/tmp'

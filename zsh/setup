@@ -1,0 +1,11 @@
+for f in ${HOME}/.zsh/functions/* ; do
+  if test "x$f" != "x${HOME}/.zsh/functions/CVS" ; then
+    . $f
+  fi
+done
+
+#for c in ${HOME}/.zsh/completion/* ; do
+#  if test "x$c" != "x${HOME}/.zsh/completion/CVS" ; then
+#    . $c
+#  fi
+#done

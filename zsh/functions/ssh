@@ -1,0 +1,28 @@
+function ensureSSHIdentity {
+  identity=`command ssh-add -l`
+
+  if [[ "$identity" == "The agent has no identities." ]] ; then
+    for f in $HOME/.ssh/* ; do
+      file=`basename $f`
+      case $file in
+        *.pub|known_hosts|authorized_keys|config)
+          :  # files to ignore
+          ;;
+        *)
+          # add the rest to the agent
+          command ssh-add $f
+          ;;
+      esac
+    done
+  fi
+}
+
+function ssh {
+  ensureSSHIdentity
+  command ssh $*
+}
+
+function scp {
+  ensureSSHIdentity
+  command scp $*
+}

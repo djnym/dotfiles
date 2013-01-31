@@ -1,0 +1,169 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+use IO::File;
+use POSIX qw(strtod ceil);
+
+# functions to determine if this is a valid number
+sub getnum {
+  my $str = shift;
+  $str =~ s/^\s+//;
+  $str =~ s/\s+$//;
+  $! = 0;
+  my($num, $unparsed) = strtod($str);
+  if ( ($str eq '' || $unparsed != 0 ) || $! ) {
+    return;
+  } else {
+    return $num;
+  }
+}
+
+sub is_numeric { defined scalar &getnum }
+
+sub printUsage {
+    STDERR->print(<<"EndOfUsage");
+Usage: $0
+                  [{-i|--input}  input_file     ]
+                  [{-o|--output} output_file    ]
+                  [{-s|--no-summary}            ]
+                  [{-g|--no-histogram}          ]
+                  [{-p|--percentile} [0-100]    ] 99
+                  [{-r|--no-rollup}             ]
+                  [{-h|-?|--help}               ]
+                  [{-b|--binsize}               ] 10
+EndOfUsage
+    exit(0);
+}
+
+my($input_file)="-";
+my($output_file)="-";
+my($showSummary)=1;
+my($showRollup)=1;
+my($showHistogram)=1;
+my($def_percentile)=99;
+my $binsize=10;
+my @percentile = ();
+
+my($arg);
+while ($arg=shift(@ARGV)) {
+  if (($arg eq '-i') || ($arg eq '--input')) {
+    $input_file=shift(@ARGV);
+  } elsif (($arg eq '-o') || ($arg eq '--output')) {
+    $output_file=shift(@ARGV);
+  } elsif (($arg eq '-p') || ($arg eq '--percentile')) {
+    push(@percentile,shift(@ARGV));
+  } elsif (($arg eq '-s') || ($arg eq '--no-summary')) {
+    $showSummary=0;
+  } elsif (($arg eq '-r') || ($arg eq '--no-rollup')) {
+    $showRollup=0;
+  } elsif (($arg eq '-b') || ($arg eq '--binsize')) {
+    $binsize=shift(@ARGV);
+  } elsif (($arg eq '-g') || ($arg eq '--no-histogram')) {
+    $showHistogram=0;
+  } elsif (($arg eq '-h') || ($arg eq '-?') || ($arg eq '--help')) {
+    printUsage();
+  }
+}
+
+unless (@percentile) {
+  @percentile = ($def_percentile);
+}
+my$sum=0;
+my$min=100000;
+my$max=0;
+my$count=0;
+my$errors=0;
+
+my($in)=new IO::File("< $input_file")
+            || die("Couldn't open $input_file ($!)\n");
+my($out)=new IO::File("> $output_file")
+            || die("Couldn't open $output_file ($!)\n");
+
+my($line);
+my(%hist);
+while ($line=$in->getline())
+{
+  my($value) = getnum($line);
+  next if ( ! defined($value) || $value eq '' );
+  $count++;
+  $hist{$value}++;
+  if ( $value < $min ) { $min = $value; }
+  if ( $value > $max ) { $max = $value; }
+  if ( $value > 500 ) { $errors++; }
+  $sum += $value;
+}
+
+my($avg)=($count!=0)?sprintf("%3.5f",$sum/$count):"NaN";
+
+my($stddev)=0;
+foreach my $n (keys %hist) {
+  $stddev += ($n - $avg)**2;
+}
+$stddev = sqrt( $stddev / $count );
+
+my(%bins);
+my($current_bin)=0;
+my %perc_counts = map { $_ => &POSIX::ceil($_/100 * $count) - 1 } @percentile;
+my %perc_msecs = ();
+my($subtotal)=0;
+# loop over the bins in order, rolling them into coarser grained bins, as
+# well as calculating the 99th percentile
+foreach my $key ( sort { $a <=> $b } keys %hist ) {
+  if ( $key > $current_bin ) {
+    $current_bin = (int($key/$binsize))*$binsize;
+  }
+  $bins{$current_bin} += $hist{$key};
+
+  $subtotal+=$hist{$key};
+  foreach (@percentile) {
+    if ( $subtotal >= $perc_counts{$_} && !defined($perc_msecs{$_}) ) {
+      $perc_msecs{$_} = $key;
+    }
+  }
+}
+
+if ( $showSummary )
+{
+  my $formatstr = "%-9s %-9s %-9s %-9s %-9s %-9s %-9s ". ("%-9s" x (@percentile)) ."\n";
+  $out->printf($formatstr, "count","sum","min", "avg","max","stddev", "errors", 
+    map {$_ . "th"} @percentile);
+  $out->printf($formatstr, $count,
+               sprintf("%3.2f",$sum),
+               sprintf("%3.2f",$min),
+               sprintf("%3.2f",$avg),
+               sprintf("%3.2f",$max),
+               sprintf("%3.2f",$stddev),
+               $errors, 
+               map {$perc_msecs{$_}} @percentile);
+  $out->print("\n");
+}
+if ( $showHistogram )
+{
+  my $formatstr = "%-9s %-9s\n";
+  $out->printf($formatstr,"msec","count");
+  foreach my $key ( sort { $a <=> $b } keys %hist )
+  {
+    my($value) = $hist{$key};
+    $out->printf($formatstr,$key,$value);
+  }
+  $out->print("\n");
+}
+if ( $showRollup )
+{
+  my $formatstr = "%-9s - %-9s\t%-9s\t%9s\n";
+  $out->printf($formatstr,"start","end","count","percent");
+  foreach my $key ( sort { $a <=> $b } keys %bins )
+  {
+    my($time0)     = sprintf("%d",$key);
+    my($time1)     = sprintf("%d",$key+($binsize-1));
+    my($value)     = sprintf("%d",$bins{$key});
+    my($percent)   = sprintf("%3.5f",$bins{$key}/$count*100);
+    $out->printf($formatstr,$time0,$time1,$value,$percent);
+  }
+}
+
+$in->close();
+$out->close();
+
+0;

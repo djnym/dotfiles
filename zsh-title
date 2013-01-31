@@ -1,0 +1,91 @@
+#
+# this file is meant to be sourced by 'zsh'
+#
+
+# where to write the pid
+export PWDFILE=/tmp/.zsh.pwd.$USER.$PPID
+
+# echo "title-twiddler-setup: pwdfile='$PWDFILE'"
+
+# get the funcs we need to do titlebar fun
+set -A list0 \
+     '[-        ]' \
+     '[ -       ]' \
+     '[  -      ]' \
+     '[   -     ]' \
+     '[    -    ]' \
+     '[     -   ]' \
+     '[      -  ]' \
+     '[       - ]' \
+     '[        -]' \
+     '[        -]' \
+     '[       - ]' \
+     '[      -  ]' \
+     '[     -   ]' \
+     '[    -    ]' \
+     '[   -     ]' \
+     '[  -      ]' \
+     '[ -       ]' \
+     '[-        ]'
+
+set -A list \
+     '*' \
+     ' '  
+
+
+xterm_title()
+{
+  str=$1
+  echo -n "]2;$str"
+}
+
+
+#
+# the function that actually does the stuff
+#
+update_title()
+{
+  index=$1
+
+  twiddle=''
+  if [ -s $PWDFILE ]; then
+   twiddle=`cat $PWDFILE`
+  fi
+
+  let i=$i+1
+  if [ $i -gt $#list ] ; then 
+    let i=$i-$#list
+  fi
+
+  twiddle=" ${USER}@${HOST} [`date '+%H:%M:%S'`]  $list[$i]  $twiddle"
+  xterm_title "$twiddle" 
+}
+
+
+TMOUT=5
+TRAPALRM()
+{
+  update_title
+}
+
+#
+# special zsh function that when defined, is called before each
+# directory change
+# 
+chpwd()
+{
+  # get the pwd, remove the fullpath at the beginning, replace with '~'
+  mypwd="${${PWD}#${HOME}}"
+  if [ "$mypwd" = "$PWD" ] ; then
+    mypwd=$PWD
+  else
+    mypwd="~$mypwd"
+  fi
+
+  # the '>!' means to overwrite file even if 'noclobber' is set
+  echo "$mypwd" >! $PWDFILE
+  update_title
+}
+
+# initially setup titlebar
+chpwd

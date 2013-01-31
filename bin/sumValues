@@ -1,0 +1,10 @@
+#!/usr/bin/env perl
+
+my$sum=0;
+while(<>)
+{
+  chomp $_;
+  $sum += eval $_;
+}
+print $sum."\n";
+
