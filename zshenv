@@ -7,5 +7,3 @@
 
 # set umask
 umask 022
-
-source ~/perl5/perlbrew/etc/bashrc

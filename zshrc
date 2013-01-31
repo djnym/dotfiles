@@ -4,6 +4,8 @@
 # comment out for no debugging info
 #DEBUG=1
 
+ARCH=`uname`
+
 [ ! -z "${DEBUG}" ] && echo "zshrc : starting"
 
 # set umask
@@ -40,7 +42,7 @@ who=" %B%n%b has %B%a%b %l from %B%m%b at %S%t on %w %D%s." # How to report them
 
 # some aliases
 [ ! -z "${DEBUG}" ] && echo "zshrc : setting up aliases"
-if [ `uname` = "Linux" ]; then
+if [ "${ARCH}" = "Linux" ]; then
   alias ls='\ls --color=auto -Fb'
 else
   alias ls='\ls -Fb'
@@ -58,7 +60,7 @@ export PAGER
 # --------------------------------------------------------------------------
 # reset the path so we can make sure it is in the order we want it in
 
-ARCH=`/usr/bin/uname`
+ARCH=`uname`
 [ ! -z "${DEBUG}" ] && echo "zshrc : PATH BEFORE : $PATH"
 PATH=""
 
@@ -122,7 +124,7 @@ ww_app_path PATH "/usr/local/sbin"
 ww_app_path PATH "/usr/sbin"
 ww_app_path PATH "/sbin"
 
-if [ `uname` = "SunOS" ] ; then
+if [ "${ARCH}" = "SunOS" ] ; then
   ww_app_path PATH "/usr/ccs/bin"
   ww_app_path PATH "/usr/openwin/bin"
 fi
@@ -208,22 +210,20 @@ fi
 setPrompt
 
 # platform specific environment variables
-if [ `uname` = "Linux" ] ; then
+if [ "${ARCH}" = "Linux" ] ; then
   # nothing here at the moment
 fi
-if [ `uname` = "SunOS" ] ; then
+if [ "${ARCH}" = "SunOS" ] ; then
   export TERMINFO=${HOME}/lib/solaris/terminfo
 fi
-if [ `uname` = "FreeBSD" ] ; then
+if [ "${ARCH}" = "FreeBSD" ] ; then
   # FreeBSD doesn't seem to like LANG=en_US
   export LANG=C
 fi
 
-FW_RPM_REPO_USER="yumrepo"
-FW_RPM_REPO_HOST="codex.pasadena.openx.org"
-FW_RPM_REPO_BASEDIR="/var/www/html/codex.openx.org/yum/openx/centos-5/testing"
-FW_RPM_POSTCREATEREPO_COMMANDS="true"
-export FW_RPM_REPO_USER FW_RPM_REPO_HOST FW_RPM_REPO_BASEDIR FW_RPM_POSTCREATEREPO_COMMANDS
+if -f .zshrc.local ; then
+  source .zshrc.local
+fi
 
 # export vars
 export PATH LD_LIBRARY_PATH PERL5LIB MANPATH
