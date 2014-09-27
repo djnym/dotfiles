@@ -128,37 +128,39 @@ esac
 
 findagent () 
   {
-    socket_dir="/tmp/."
+    if test "`uname`" != "Darwin" ; then
+      socket_dir="/tmp/."
 
-    if _bashagent_test; then
-        true
-    else
-	unset SSH_AUTH_SOCK
-        unset SSH_AGENT_PID
-	for socket in \
-	    `find $socket_dir -xdev -print 2>/dev/null | egrep 'ssh-.*/agent.*'`
-	do
-	    perl -e 'exit -O shift' $socket && continue
-	    perl -e 'exit -S shift' $socket && continue
+      if _bashagent_test; then
+          true
+      else
+      unset SSH_AUTH_SOCK
+          unset SSH_AGENT_PID
+      for socket in \
+          `find $socket_dir -xdev -print 2>/dev/null | egrep 'ssh-.*/agent.*'`
+      do
+          perl -e 'exit -O shift' $socket && continue
+          perl -e 'exit -S shift' $socket && continue
 
-	    export SSH_AUTH_SOCK=$socket
+          export SSH_AUTH_SOCK=$socket
 
-	    if _bashagent_test; then
-	      break
-	    else
-	      rm -f $SSH_AUTH_SOCK 
-	      unset SSH_AUTH_SOCK
-	    fi
-	done
-    fi
-    if [ ! -z "$SSH_AUTH_SOCK" ]; then
+          if _bashagent_test; then
+            break
+          else
+            rm -f $SSH_AUTH_SOCK 
+            unset SSH_AUTH_SOCK
+          fi
+      done
+      fi
+      if [ ! -z "$SSH_AUTH_SOCK" ]; then
 
-      # this simply doesn't work
-      #SSH_AGENT_PID=`echo $SSH_AUTH_SOCK | sed -e 's/^.*agent\.//'`
-      #export SSH_AGENT_PID
+        # this simply doesn't work
+        #SSH_AGENT_PID=`echo $SSH_AUTH_SOCK | sed -e 's/^.*agent\.//'`
+        #export SSH_AGENT_PID
 
-      export SSH_AUTH_SOCK
-      ssh-add -l
+        export SSH_AUTH_SOCK
+        ssh-add -l
+      fi
     fi
   }
 

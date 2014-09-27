@@ -212,6 +212,7 @@ setPrompt
 # platform specific environment variables
 if [ "${ARCH}" = "Linux" ] ; then
   # nothing here at the moment
+  findagent
 fi
 if [ "${ARCH}" = "SunOS" ] ; then
   export TERMINFO=${HOME}/lib/solaris/terminfo
@@ -228,8 +229,6 @@ fi
 # export vars
 export PATH LD_LIBRARY_PATH PERL5LIB MANPATH
 export PKG_CONFIG_PATH CPPFLAGS CFLAGS CXXFLAGS LIBS LDFLAGS
-
-findagent
 
 [ ! -z "${DEBUG}" ] && echo "zshrc : PATH END '$PATH'"
 [ ! -z "${DEBUG}" ] && echo "zshrc : done"

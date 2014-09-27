@@ -1,11 +1,10 @@
-for f in ${HOME}/.zsh/functions/* ; do
-  if test "x$f" != "x${HOME}/.zsh/functions/CVS" ; then
-    . $f
-  fi
-done
+ARCH=`uname`
+if test "$ARCH" = "Linux" ; then
+  SETUP=(bashagent prompt screen ssh ww-env-api)
+else
+  SETUP=(bashagent prompt screen ww-env-api)
+fi
 
-#for c in ${HOME}/.zsh/completion/* ; do
-#  if test "x$c" != "x${HOME}/.zsh/completion/CVS" ; then
-#    . $c
-#  fi
-#done
+for f in $SETUP ; do
+  . ${HOME}/.zsh/functions/$f
+done
