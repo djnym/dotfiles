@@ -1,0 +1,40 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+my $count = shift;
+my $timebetween = shift;
+
+my @cols = ( "ESTABLISHED", "TIME_WAIT", "FIN_WAIT1", "FIN_WAIT2",
+             "SYN_SENT", "SYN_RCVD", "CLOSE_WAIT", "LAST_ACK" );
+
+while ($count != 0) {
+  my %counts = map { $_ => 0 } @cols;
+  my $os = `uname`;
+  chomp $os;
+  my @netstat;
+  if ($os eq "Linux") {
+    @netstat  = `netstat -n -t`;
+  } elsif ($os eq "Darwin") {
+    @netstat  = `netstat -n -p tcp`;
+  }
+  my $first = 1;
+  while (my $line = shift @netstat) {
+    # skip netstat header
+    if ($first) {
+      $first = 0;
+      next;
+    }
+    chomp $line;
+    my ($proto, $recvq, $sendq, $local, $foreign, $state) = split /\s+/, $line;
+    $counts{$state}++;
+  }
+  my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
+  my $timestr = sprintf "%02d/%02d/%04d:%02d:%02d:%02d", $mon+1, $mday, 1900+$year, $hour, $min, $sec;
+  print $timestr."\t".join ("\t",map {$counts{$_}} @cols)."\n";
+  sleep $timebetween;
+  $count--;
+}
+
+0;

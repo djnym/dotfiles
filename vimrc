@@ -67,6 +67,7 @@ map <F4> :set ts=4 sw=4 noai nosi nosm<CR>
 map <F5> :set nu<CR>
 map <F6> :set nonu<CR>
 
+
 if (has("syntax"))
   map <F9> :if exists("syntax_on") <Bar> syntax off <Bar> else <Bar> syntax on <Bar> endif <CR>
   let java_highlight_java_lang_ids=1
@@ -167,3 +168,6 @@ function BufOptions(state)
     endif
   endif
 endfunction
+
+call pathogen#infect()
+call pathogen#helptags()

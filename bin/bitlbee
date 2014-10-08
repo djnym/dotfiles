@@ -1,0 +1,60 @@
+#!/bin/sh
+
+pidfile=~/tmp/bitlbee.pid
+
+showHelp () {
+  echo "Usage: `basename $0` <option>";
+  echo;
+  echo "Options:";
+  echo " start    = Start bitlbee daemon";
+  echo " status   = Show status of bitlbee daemon";
+  echo " stop     = Stop bitlbee daemon";
+}
+
+getPid() {
+  pid=`cat ~/tmp/bitlbee.pid`
+}
+
+if [ $# = 0 ]; then
+    showHelp;
+fi
+
+while [ $# -gt 0 ]; do
+  arg=$1;
+  case $arg in
+    "status" )
+      if test -f ~/tmp/bitlbee.pid ; then
+        getPid
+        kill -0 $pid > /dev/null 2>&1
+        if test $? = 0 ; then
+          echo "bitlbee is running at pid ($pid)"
+        else
+          echo "bitlbee has pidfile but is not running"
+        fi
+      else
+        echo "bitlbee does not have a pidfile, so is probably not running"
+      fi
+      break ;;
+    "start" )
+      /usr/local/sbin/bitlbee -D \
+        -c ~/.bitlbee/bitlbee.conf \
+        -d ~/.bitlbee \
+        -P ~/tmp/bitlbee.pid
+      bitlbee status
+      break ;;
+    "stop" )
+      getPid
+      kill $pid
+      if test $? = 0 ; then
+        echo "bitlbee killed"
+        rm -f ~/tmp/bitlbee.pid
+      else
+        echo "failed to kill bitlbee"
+      fi
+      break ;;
+    "help" | * )
+      echo "help:";
+      showHelp;
+      break ;;
+  esac
+done
