@@ -4,6 +4,7 @@ not_dot=bin
 dot_files=$(filter-out $(not_dot), $(wildcard *))
 
 install-dot-files:
+	mkdir -p $(HOME)/tmp
 	for file in $(dot_files) ; do \
 	  if test ! -h $(HOME)/.$${file} ; then \
 	    ln -s $(cwd)/$${file} $(HOME)/.$${file} ; \
