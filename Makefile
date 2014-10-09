@@ -4,6 +4,12 @@ not_dot=bin
 dot_files=$(filter-out $(not_dot), $(wildcard *))
 
 install-dot-files:
+	if test -f $(HOME)/.zshrc ; then \
+	  rm -f $(HOME)/.zshrc ;
+	fi
+	if test -f $(HOME)/.bashrc ; then \
+	  rm -f $(HOME)/.bashrc ;
+	fi
 	mkdir -p $(HOME)/tmp
 	for file in $(dot_files) ; do \
 	  if test ! -h $(HOME)/.$${file} ; then \
