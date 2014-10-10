@@ -18,7 +18,9 @@ install-dot-files:
 	done ; \
 	mkdir -p $(HOME)/.vim/bundle && \
 	cd $(HOME)/.vim/bundle && \
-	git clone git://github.com/jimenezrick/vimerl.git
+	if test ! -d vimerl ; then \
+	  git clone git://github.com/jimenezrick/vimerl.git ; \
+	fi
 
 uninstall-dot-files:
 	rm -rf $(HOME)/.vim/bundle ; \
@@ -31,7 +33,9 @@ install-bin-files:
 	  mkdir $(HOME)/bin ; \
 	fi ; \
 	for file in $(bin_files) ; do \
-	  ln -s $(cwd)/$${file} $(HOME)/$${file} ; \
+	  if test ! -h $(HOME)/$${file} ; then \
+	    ln -s $(cwd)/$${file} $(HOME)/$${file} ; \
+	  fi ; \
 	done
 
 uninstall-bin-files:

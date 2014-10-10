@@ -1,0 +1,4 @@
+#!/bin/sh
+
+git config --local user.name "Anthony Molinaro"
+git config --local user.email "anthony.molinaro@openx.com"
