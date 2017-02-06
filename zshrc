@@ -124,6 +124,10 @@ ww_app_path PATH "/usr/local/sbin"
 ww_app_path PATH "/usr/sbin"
 ww_app_path PATH "/sbin"
 
+if test -d "/opt/homebrew-cask/Caskroom/factor/0.97/factor" ; then
+  ww_app_path PATH "/opt/homebrew-cask/Caskroom/factor/0.97/factor"
+fi
+
 if [ "${ARCH}" = "SunOS" ] ; then
   ww_app_path PATH "/usr/ccs/bin"
   ww_app_path PATH "/usr/openwin/bin"

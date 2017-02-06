@@ -1,4 +1,5 @@
-cwd=`pwd`
+cwd=$(shell pwd)
+relative=`echo $(cwd) | sed 's:^$(HOME)/::'`
 bin_files=$(wildcard bin/*)
 not_dot=bin
 dot_files=$(filter-out $(not_dot), $(wildcard *))
@@ -13,7 +14,7 @@ install-dot-files:
 	mkdir -p $(HOME)/tmp
 	for file in $(dot_files) ; do \
 	  if test ! -h $(HOME)/.$${file} ; then \
-	    ln -s $(cwd)/$${file} $(HOME)/.$${file} ; \
+	    ln -s $(relative)/$${file} $(HOME)/.$${file} ; \
 	  fi ; \
 	done ; \
 	mkdir -p $(HOME)/.vim/bundle && \

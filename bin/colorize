@@ -1,3 +1,5 @@
 #!/bin/bash
 #/usr/local/bin/pygmentize -f rtf -O "style=friendly,fontface=Courier Bold" "$1" | sed "s/\\\\f0/\\\\f0\\\\fs48/g" | pbcopy
-/usr/local/bin/pygmentize -f rtf -O "style=vim,fontface=Courier Bold" "$1" | sed "s/\\\\f0/\\\\f0\\\\fs48/g" | pbcopy
+style="friendly"
+/usr/local/bin/pygmentize -f rtf -O "style=$style,fontface=Courier Bold" "$1" | sed "s/\\\\f0/\\\\f0\\\\fs48/g" | pbcopy
+#-pboard font

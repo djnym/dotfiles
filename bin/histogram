@@ -140,8 +140,8 @@ if ( $showSummary )
 }
 if ( $showHistogram )
 {
-  my $formatstr = "%-9s %-9s\n";
-  $out->printf($formatstr,"msec","count");
+  my $formatstr = "%d\t%d\n";
+#  $out->printf($formatstr,"msec","count");
   foreach my $key ( sort { $a <=> $b } keys %hist )
   {
     my($value) = $hist{$key};

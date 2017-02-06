@@ -9,10 +9,28 @@ showHelp () {
   echo " start    = Start bitlbee daemon";
   echo " status   = Show status of bitlbee daemon";
   echo " stop     = Stop bitlbee daemon";
+  echo " restart  = Stop and Start bitlbee daemon";
 }
 
 getPid() {
   pid=`cat ~/tmp/bitlbee.pid`
+}
+
+start_bitlbee() {
+  /usr/local/sbin/bitlbee -D \
+    -c ~/.bitlbee/bitlbee.conf \
+    -d ~/.bitlbee \
+    -P ~/tmp/bitlbee.pid
+}
+
+stop_bitlbee() {
+  kill $pid
+  if test $? = 0 ; then
+    echo "bitlbee killed"
+    rm -f ~/tmp/bitlbee.pid
+  else
+    echo "failed to kill bitlbee"
+  fi
 }
 
 if [ $# = 0 ]; then
@@ -36,21 +54,17 @@ while [ $# -gt 0 ]; do
       fi
       break ;;
     "start" )
-      /usr/local/sbin/bitlbee -D \
-        -c ~/.bitlbee/bitlbee.conf \
-        -d ~/.bitlbee \
-        -P ~/tmp/bitlbee.pid
+      start_bitlbee
       bitlbee status
       break ;;
     "stop" )
       getPid
-      kill $pid
-      if test $? = 0 ; then
-        echo "bitlbee killed"
-        rm -f ~/tmp/bitlbee.pid
-      else
-        echo "failed to kill bitlbee"
-      fi
+      stop_bitlbee
+      break ;;
+    "restart" )
+      getPid
+      stop_bitlbee
+      start_bitlbee
       break ;;
     "help" | * )
       echo "help:";
