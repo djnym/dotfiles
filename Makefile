@@ -47,3 +47,6 @@ uninstall-bin-files:
 install: install-dot-files install-bin-files
 
 uninstall: uninstall-dot-files uninstall-bin-files
+
+oh-my-zsh:
+	sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"

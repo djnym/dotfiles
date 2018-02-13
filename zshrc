@@ -1,109 +1,5 @@
-#
-# $Id: .zshrc,v 1.41 2007/02/15 20:50:59 molinaro Exp $
-#
-# comment out for no debugging info
-#DEBUG=1
-
-ARCH=`uname`
-
-[ ! -z "${DEBUG}" ] && echo "zshrc : starting"
-
-# set umask
-umask 022
-
-# grab functions and completions
-if [ -f ${HOME}/.zsh/setup ] ; then
-  . ${HOME}/.zsh/setup
-fi
-
-[ ! -z "${DEBUG}" ] && echo "zshrc : setting up zsh options"
-
-# set options
-setopt append_history 
-#setopt automenu
-setopt csh_null_glob
-setopt globdots
-setopt hist_ignore_dups
-setopt hist_verify
-setopt interactive_comments
-setopt nohup
-setopt pushd_ignore_dups
-
-bindkey -v
-bindkey "^R" history-incremental-search-backward
-
-[ ! -z "${DEBUG}" ] && echo "zshrc : setting up history"
-HISTSIZE=300           # Set up a sufficiently long history record.
-SAVEHIST=0             # Kill any saved history.
-
-[ ! -z "${DEBUG}" ] && echo "zshrc : setting up login watching"
-watch=(all)                                                 # Watch for logins
-who=" %B%n%b has %B%a%b %l from %B%m%b at %S%t on %w %D%s." # How to report them
-
-# some aliases
-[ ! -z "${DEBUG}" ] && echo "zshrc : setting up aliases"
-if [ "${ARCH}" = "Linux" ]; then
-  alias ls='\ls --color=auto -Fb'
-else
-  alias ls='\ls -Fb'
-fi
-alias rm='\rm -i'
-alias cr='a2ps -2 -E -A virtual -j --line-numbers=1'
-#alias perldoc='LANG=en_US perldoc'
-
-# set some environment variables
-PAGER='less'
-export PAGER
-
-# --------------------------------------------------------------------------
-# Path Variables
-# --------------------------------------------------------------------------
-# reset the path so we can make sure it is in the order we want it in
-
-ARCH=`uname`
-[ ! -z "${DEBUG}" ] && echo "zshrc : PATH BEFORE : $PATH"
-PATH=""
-
-# fink is gobbling my path, so is here first
-if [ ${ARCH} = "Darwin" ] ; then
-
-  [ ! -z "${DEBUG}" ] && echo "zshrc : PATH BEFORE FINK : '$PATH'"
-  # These are all Fink related
-  if test -f /sw/bin/init.sh ; then
-    source /sw/bin/init.sh
-    ww_app_path MANPATH "/sw/man"
-    ww_app_path PATH "/sw/bin"
-    ww_app_path LD_LIBRARY_PATH "/sw/lib"
-    ww_app_path PERL5LIB "/sw/lib/perl5"
-    ww_app_path PKG_CONFIG_PATH "/sw/lib/pkgconfig"
-    ww_app_include CPPFLAGS "/sw/include"
-    ww_app_include CFLAGS "/sw/include"
-    ww_app_include CXXLAGS "/sw/include"
-    ww_app_lib LIBS "/sw/lib"
-    ww_app_lib LDFLAGS "/sw/lib"
-  fi
-
-  [ ! -z "${DEBUG}" ] && echo "zshrc : PATH BEFORE MACPORTS '$PATH'"
-  # These are all Darwin Ports related
-  if test -d /opt/local ; then
-    ww_app_path MANPATH "/opt/local/man"
-    ww_app_path PATH "/opt/local/bin"
-    ww_app_path LD_LIBRARY_PATH "/opt/local/lib"
-    ww_app_path PERL5LIB "/opt/local/lib/perl5"
-    ww_app_path PKG_CONFIG_PATH "/opt/local/lib/pkgconfig"
-    ww_app_path CPPFLAGS "/opt/local/include"
-    ww_app_include CFLAGS "/opt/local/include"
-    ww_app_include CXXLAGS "/opt/local/include"
-    ww_app_lib LIBS "/opt/local/lib"
-    ww_app_lib LDFLAGS "/opt/local/lib"
-  fi
-
-  # default to 64-bit for building
-  LDFLAGS="-arch x86_64 $LDFLAGS"
-fi
-
-
-[ ! -z "${DEBUG}" ] && echo "zshrc : PATH SETTING '$PATH'"
+# source path tools
+. ~/.zsh/functions/ww-env-api
 
 # Set PATH
 ww_app_path PATH "$HOME/bin"
@@ -124,27 +20,10 @@ ww_app_path PATH "/usr/local/sbin"
 ww_app_path PATH "/usr/sbin"
 ww_app_path PATH "/sbin"
 
-if test -d "/opt/homebrew-cask/Caskroom/factor/0.97/factor" ; then
-  ww_app_path PATH "/opt/homebrew-cask/Caskroom/factor/0.97/factor"
-fi
-
-if [ "${ARCH}" = "SunOS" ] ; then
-  ww_app_path PATH "/usr/ccs/bin"
-  ww_app_path PATH "/usr/openwin/bin"
-fi
-
-
-[ ! -z "${DEBUG}" ] && echo "zshrc : PATH AFTER '$PATH'"
-
 # Set LD_LIBRARY_PATH
 ww_app_path LD_LIBRARY_PATH "$HOME/lib"
 ww_app_path LD_LIBRARY_PATH "/opt/lib"
 ww_app_path LD_LIBRARY_PATH "/usr/local/lib"
-
-# Set PERL5LIB
-#ww_app_path PERL5LIB "$HOME/lib/perl5"
-#ww_app_path PERL5LIB "/opt/lib/perl5"
-#ww_app_path PERL5LIB "/usr/local/lib/perl5"
 
 # Set MANPATH
 ww_app_path MANPATH "$HOME/man"
@@ -154,23 +33,16 @@ ww_app_path MANPATH "/usr/man"
 ww_app_path MANPATH "/usr/share/man"
 ww_app_path MANPATH "/man"
 
-
-# --------------------------------------------------------------------------
-# Development Variables
-# --------------------------------------------------------------------------
-
 # Set PKG_CONFIG_PATH
 ww_app_delim PKG_CONFIG_PATH "$HOME/lib/pkgconfig" ":"
 ww_app_delim PKG_CONFIG_PATH "/opt/lib/pkgconfig" ":"
 ww_app_delim PKG_CONFIG_PATH "/usr/lib/pkgconfig" ":"
 ww_app_delim PKG_CONFIG_PATH "/usr/local/lib/pkgconfig" ":"
 
-
 # Set CPPFLAGS
 ww_app_include CPPFLAGS "$HOME/include"
 ww_app_include CPPFLAGS "/opt/include"
 ww_app_include CPPFLAGS "/usr/local/include"
-
 
 # Set CFLAGS
 ww_app_delim CFLAGS "-g" " "
@@ -178,20 +50,20 @@ ww_app_delim CFLAGS "-O3" " "
 ww_app_delim CFLAGS "-funroll-loops" " "
 ww_app_delim CFLAGS "$CPPFLAGS" " "
 
-
 # Set CXXFLAGS
 ww_app_delim CXXFLAGS "$CFLAGS" " "
 ww_app_delim CXXFLAGS "$CPPFLAGS" " "
-
 
 # Set LIBS
 ww_app_lib LIBS "$HOME/lib"
 ww_app_lib LIBS "/usr/local/lib"
 ww_app_lib LIBS "/opt/lib"
 
-
 # Set LDFLAGS
 ww_app_delim LDFLAGS "$LIBS" " "
+
+# Set PERL5LIB
+ww_app_path PERL5LIB "$HOME/perl5/lib/perl5"
 
 # Set MAKE
 gmake=`which gmake 2>/dev/null`
@@ -211,21 +83,6 @@ else
   export VISUAL=vi
 fi
 
-setPrompt
-
-# platform specific environment variables
-if [ "${ARCH}" = "Linux" ] ; then
-  # nothing here at the moment
-  findagent
-fi
-if [ "${ARCH}" = "SunOS" ] ; then
-  export TERMINFO=${HOME}/lib/solaris/terminfo
-fi
-if [ "${ARCH}" = "FreeBSD" ] ; then
-  # FreeBSD doesn't seem to like LANG=en_US
-  export LANG=C
-fi
-
 if test -f .zshrc.local ; then
   source .zshrc.local
 fi
@@ -234,5 +91,100 @@ fi
 export PATH LD_LIBRARY_PATH PERL5LIB MANPATH
 export PKG_CONFIG_PATH CPPFLAGS CFLAGS CXXFLAGS LIBS LDFLAGS
 
-[ ! -z "${DEBUG}" ] && echo "zshrc : PATH END '$PATH'"
-[ ! -z "${DEBUG}" ] && echo "zshrc : done"
+# Path to your oh-my-zsh installation.
+export ZSH=/Users/anthony.molinaro/.oh-my-zsh
+
+# Set name of the theme to load. Optionally, if you set this to "random"
+# it'll load a random theme each time that oh-my-zsh is loaded.
+# See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
+ZSH_THEME="fishy"
+
+# Set list of themes to load
+# Setting this variable when ZSH_THEME=random
+# cause zsh load theme from this variable instead of
+# looking in ~/.oh-my-zsh/themes/
+# An empty array have no effect
+# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
+
+# Uncomment the following line to use case-sensitive completion.
+# CASE_SENSITIVE="true"
+
+# Uncomment the following line to use hyphen-insensitive completion. Case
+# sensitive completion must be off. _ and - will be interchangeable.
+# HYPHEN_INSENSITIVE="true"
+
+# Uncomment the following line to disable bi-weekly auto-update checks.
+# DISABLE_AUTO_UPDATE="true"
+
+# Uncomment the following line to change how often to auto-update (in days).
+# export UPDATE_ZSH_DAYS=13
+
+# Uncomment the following line to disable colors in ls.
+# DISABLE_LS_COLORS="true"
+
+# Uncomment the following line to disable auto-setting terminal title.
+# DISABLE_AUTO_TITLE="true"
+
+# Uncomment the following line to enable command auto-correction.
+# ENABLE_CORRECTION="true"
+
+# Uncomment the following line to display red dots whilst waiting for completion.
+# COMPLETION_WAITING_DOTS="true"
+
+# Uncomment the following line if you want to disable marking untracked files
+# under VCS as dirty. This makes repository status check for large repositories
+# much, much faster.
+# DISABLE_UNTRACKED_FILES_DIRTY="true"
+
+# Uncomment the following line if you want to change the command execution time
+# stamp shown in the history command output.
+# The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
+# HIST_STAMPS="mm/dd/yyyy"
+
+# Would you like to use another custom folder than $ZSH/custom?
+# ZSH_CUSTOM=/path/to/new-custom-folder
+
+# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
+# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
+# Example format: plugins=(rails git textmate ruby lighthouse)
+# Add wisely, as too many plugins slow down shell startup.
+plugins=(
+  git
+  $plugins
+)
+
+source $ZSH/oh-my-zsh.sh
+
+# User configuration
+
+# enable vi command line editing
+bindkey -v
+# but put back incremental search backward because I like it
+bindkey "^R" history-incremental-search-backward
+
+# export MANPATH="/usr/local/man:$MANPATH"
+
+# You may need to manually set your language environment
+# export LANG=en_US.UTF-8
+
+# Preferred editor for local and remote sessions
+# if [[ -n $SSH_CONNECTION ]]; then
+#   export EDITOR='vim'
+# else
+#   export EDITOR='mvim'
+# fi
+
+# Compilation flags
+# export ARCHFLAGS="-arch x86_64"
+
+# ssh
+# export SSH_KEY_PATH="~/.ssh/rsa_id"
+
+# Set personal aliases, overriding those provided by oh-my-zsh libs,
+# plugins, and themes. Aliases can be placed here, though oh-my-zsh
+# users are encouraged to define aliases within the ZSH_CUSTOM folder.
+# For a full list of active aliases, run `alias`.
+#
+# Example aliases
+# alias zshconfig="mate ~/.zshrc"
+# alias ohmyzsh="mate ~/.oh-my-zsh"
