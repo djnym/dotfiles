@@ -91,8 +91,20 @@ fi
 export PATH LD_LIBRARY_PATH PERL5LIB MANPATH
 export PKG_CONFIG_PATH CPPFLAGS CFLAGS CXXFLAGS LIBS LDFLAGS
 
+ARCH=`uname`
 # Path to your oh-my-zsh installation.
-export ZSH=/Users/anthony.molinaro/.oh-my-zsh
+if [ "`uname`" = "Darwin" ]; then
+  if [ -d /Users/anthony.molinaro ] ; then
+    export ZSH=/Users/anthony.molinaro/.oh-my-zsh
+  else
+    if [ -d /Users/molinaro ] ; then
+      export ZSH=/Users/molinaro/.oh-my-zsh
+    fi
+  fi
+else
+  # probably Linux, so assume my standard naming
+  export ZSH=/home/molinaro/.oh-my-zsh
+fi
 
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
