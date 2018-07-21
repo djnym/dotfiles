@@ -274,6 +274,16 @@ ww_app_path () {
   fi
 }
 
+# equiv to: ww_pre_delim PATH "/foo" ":"
+# ww_pre_path PATH "/foo"
+ww_pre_path_usage="ww_pre_path VAR COMPONANT"
+ww_pre_path () {
+  test "$#" -ne 2 && ww_usage "$ww_pre_path_usage"
+  if test -d $2 ; then
+    ww_pre_delim "$1" "$2" ":"
+  fi
+}
+
 ww_app_include_usage="ww_app_include VAR COMPONANT"
 ww_app_include () {
   test "$#" -ne 2 && ww_usage "$ww_app_include_usage"
