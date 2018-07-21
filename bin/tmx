@@ -7,28 +7,15 @@
 # Store it to `~/bin/tmx` and issue `chmod +x`.
 #
 
-# Works because bash automatically trims by assigning to variables and by 
-# passing arguments
-trim() { echo $1; }
-
-if [[ -z "$1" ]]; then
+base_session="$1"
+if [[ -z "$base_session" ]]; then
   echo "Specify session name as the first argument"
   exit
 fi
 
-# Only because I often issue `ls` to this script by accident
-if [[ "$1" == "ls" ]]; then
-  tmux ls
-  exit
-fi
+# check for this session already existing
 
-base_session="$1"
-# This actually works without the trim() on all systems except OSX
-tmux_nb=$(trim `tmux ls | grep "^$base_session" | wc -l`)
-if [[ "$tmux_nb" == "0" ]]; then
-  echo "Launching tmux base session $base_session ..."
-  tmux new-session -s $base_session
-else
+if tmux has-session -t "$base_session-0" ; then
   # Make sure we are not already in a tmux session
   if [[ -z "$TMUX" ]]; then
     # Kill defunct sessions first
@@ -37,17 +24,26 @@ else
       tmux kill-session -t $old_session_id
     done
 
-    echo "Launching copy of base session $base_session ..."
+    i=0
+    while tmux has-session -t "$base_session-$i" ; do
+      ((i++))
+    done
+    new_session="$base_session-$i"
+
+    echo "Launching copy of base session $base_session as $new_session"
     # Session is is date and time to prevent conflict
     session_id=`date +%Y%m%d%H%M%S`
     # Create a new session (without attaching it) and link to base session 
     # to share windows
-    tmux new-session -d -t $base_session -s $session_id
+    tmux new-session -d -t $base_session-0 -s $new_session
     # Create a new window in that session
     #tmux new-window
     # Attach to the new session
-    tmux attach-session -t $session_id
+    tmux attach-session -t $new_session
     # When we detach from it, kill the session
-    tmux kill-session -t $session_id
+    tmux kill-session -t $new_session
   fi
+else
+  echo "Launching tmux base session $base_session ..."
+  tmux new-session -s "$base_session-0"
 fi
