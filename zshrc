@@ -2,23 +2,22 @@
 . ~/.zsh/functions/ww-env-api
 
 # Set PATH
+unset PATH
 ww_app_path PATH "$HOME/bin"
 ww_app_path PATH "$HOME/sbin"
-
 if test -d "$HOME/perl5/perlbrew/" ; then
   ww_app_path PATH "$HOME/perl5/perlbrew/bin"
 fi
-
-ww_app_path PATH "/usr/local/bin"
 ww_app_path PATH "/opt/bin"
+ww_app_path PATH "/opt/sbin"
+ww_app_path PATH "/usr/local/bin"
+ww_app_path PATH "/usr/local/sbin"
 ww_app_path PATH "/usr/bin"
+ww_app_path PATH "/usr/sbin"
 ww_app_path PATH "/bin"
-
+ww_app_path PATH "/sbin"
 ww_app_path PATH "/usr/games/bin"
 ww_app_path PATH "/usr/X11R6/bin"
-ww_app_path PATH "/usr/local/sbin"
-ww_app_path PATH "/usr/sbin"
-ww_app_path PATH "/sbin"
 
 # Set LD_LIBRARY_PATH
 ww_app_path LD_LIBRARY_PATH "$HOME/lib"
