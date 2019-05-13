@@ -1,0 +1,28 @@
+#!/usr/bin/perl
+
+# Signal (a.k.a. RSSI) is the usable strength of the radio waves, expressed
+# in decibels between 0db (strongest) and -120db (weakest). Smaller negative
+# numbers represent a cleaner/stronger signal. For wireless data
+# communications, normal range is -45db to -87db. Anything below -85db
+# is generally unusable, and over -50db can be considered perfect.
+#
+# Noise (dBm) in wireless communications is a combination of all unwanted
+# interfering signal sources, such as crosstalk, radio frequency interference,
+# distortion, etc. This value is measured in decibels from zero to -120.
+# The closer this value is to -120, the better, because that means there is
+# little to no interference. Typical environments range between -100db
+# and -80db.
+#
+my $done = 0;
+print "time\tid\trssi\tnoise\tlastTxRate\tmaxRate\n";
+while (!$done) {
+  my $date=`date +"%s"`;
+  $date =~ s/\s//g;
+  my @vals=`/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I`;
+  my %vals = map { m/\s*([^:]+):\s+([^\s]+)/; $1 => $2 } @vals;
+  $vals{BSSID} =~ s/://g;
+  print "$date\t".join("\t",("$vals{SSID}_$vals{BSSID}",$vals{agrCtlRSSI},$vals{agrCtlNoise},$vals{lastTxRate},$vals{maxRate}))."\n";
+  sleep 10;
+}
+
+exit 0;

@@ -1,0 +1,67 @@
+#!/bin/sh
+
+NAME=
+
+showHelp () {
+  echo "Usage: `basename $0` <option>";
+  echo;
+  echo "Options:";
+  echo " start    = start vm";
+  echo " stop     = stop vm";
+  echo " status   = status";
+}
+
+get_name() {
+  case $1 in
+    centos65)
+      NAME="centos65"
+      ;;
+    centos54)
+      NAME="centos54"
+      ;;
+    centos7)
+      NAME="centos7"
+      ;;
+  esac
+}
+
+start () {
+  VBoxManage startvm $1 --type headless
+}
+
+stop () {
+  VBoxManage controlvm $1 poweroff
+}
+
+status() {
+  VBoxManage list runningvms
+}
+
+#"contrib_default_1415833667395_4302" {b419e4d4-fb3a-4b67-aaaa-50ec923d0a27}
+#"" {a5ae0e72-f149-41c4-93b4-3f010df5212f}
+#"local-gocd_default_1450215284716_30457" {b85571ea-d2b4-4150-a99b-288e3350fa7a}
+#"boot2docker-vm" {9b410278-3095-48e0-b0c1-e25173955bc5}
+#"centos7" {663f82af-439a-4dfc-b3e9-745c46cde46b}
+#"" {3e17c8a8-e132-4b01-bb2b-c4370dafc049}
+#"Suse" {1c1be362-e2c4-4c6a-a049-1ef9782bf53c}
+
+if [ $# = 0 ]; then
+    showHelp;
+fi
+
+arg=$1;
+case $arg in
+  start)
+    get_name $2
+    start $NAME
+    ;;
+  stop)
+    get_name $2
+    stop $NAME
+    ;;
+  status)
+    status
+    ;;
+esac
+
+exit 0;

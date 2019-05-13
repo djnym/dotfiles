@@ -1,0 +1,72 @@
+#!/bin/sh
+
+pidfile=~/tmp/redis_6379.pid
+
+showHelp () {
+  echo "Usage: `basename $0` <option>";
+  echo;
+  echo "Options:";
+  echo " start    = Start redis daemon";
+  echo " status   = Show status of redis daemon";
+  echo " stop     = Stop redis daemon";
+  echo " restart  = Stop and Start redis daemon";
+}
+
+getPid() {
+  pid=`cat $pidfile`
+}
+
+start_redis() {
+  redis-server $HOME/.redis.conf
+}
+
+stop_redis() {
+  kill $pid
+  if test $? = 0 ; then
+    echo "redis killed"
+    rm -f $pidfile
+  else
+    echo "failed to kill redis"
+  fi
+}
+
+
+if [ $# = 0 ]; then
+    showHelp;
+fi
+
+while [ $# -gt 0 ]; do
+  arg=$1;
+  case $arg in
+    "status" )
+      if test -f $pidfile ; then
+        getPid
+        kill -0 $pid > /dev/null 2>&1
+        if test $? = 0 ; then
+          echo "redis is running at pid ($pid)"
+        else
+          echo "redis has pidfile but is not running"
+        fi
+      else
+        echo "redis does not have a pidfile, so is probably not running"
+      fi
+      break ;;
+    "start" )
+      start_redis
+      break ;;
+    "stop" )
+      getPid
+      stop_redis
+      break ;;
+    "restart" )
+      getPid
+      stop_redis
+      start_redis
+      break ;;
+    "help" | * )
+      echo "help:";
+      showHelp;
+      break ;;
+  esac
+done
+

@@ -82,8 +82,10 @@ while (1) {
 }
 
 sub open_log {
+  my $t = time;
+  my $date = strftime "%Y%m%d%H%M%S", localtime $t;
   $count = 0;
-  open (my $fh, ">", "$prefix.log") or die "can't open file : $!";
+  open (my $fh, ">", "$prefix.$date.log") or die "can't open file : $!";
   $fh->autoflush;
   print $fh $header;
   return $fh;
@@ -102,9 +104,6 @@ sub print_to_log {
 
 sub close_log {
   my ($fh) = @_;
-  close $fh;
-  my $t = time;
-  my $date = strftime "%Y%m%d%H%M%S", localtime $t;
-  rename "$prefix.log", "$prefix.$date.log";
+  close $fh
 }
 0;
