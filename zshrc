@@ -8,40 +8,40 @@ ww_app_path PATH "$HOME/sbin"
 if test -d "$HOME/perl5/perlbrew/" ; then
   ww_app_path PATH "$HOME/perl5/perlbrew/bin"
 fi
-ww_app_path PATH "/opt/bin"
-ww_app_path PATH "/opt/sbin"
 ww_app_path PATH "/usr/local/bin"
 ww_app_path PATH "/usr/local/sbin"
 ww_app_path PATH "/usr/bin"
 ww_app_path PATH "/usr/sbin"
 ww_app_path PATH "/bin"
 ww_app_path PATH "/sbin"
+ww_app_path PATH "/opt/bin"
+ww_app_path PATH "/opt/sbin"
 ww_app_path PATH "/usr/games/bin"
 ww_app_path PATH "/usr/X11R6/bin"
 
 # Set LD_LIBRARY_PATH
 ww_app_path LD_LIBRARY_PATH "$HOME/lib"
-ww_app_path LD_LIBRARY_PATH "/opt/lib"
 ww_app_path LD_LIBRARY_PATH "/usr/local/lib"
+ww_app_path LD_LIBRARY_PATH "/opt/lib"
 
 # Set MANPATH
 ww_app_path MANPATH "$HOME/man"
-ww_app_path MANPATH "/opt/man"
 ww_app_path MANPATH "/usr/local/man"
 ww_app_path MANPATH "/usr/man"
 ww_app_path MANPATH "/usr/share/man"
 ww_app_path MANPATH "/man"
+ww_app_path MANPATH "/opt/man"
 
 # Set PKG_CONFIG_PATH
 ww_app_delim PKG_CONFIG_PATH "$HOME/lib/pkgconfig" ":"
-ww_app_delim PKG_CONFIG_PATH "/opt/lib/pkgconfig" ":"
 ww_app_delim PKG_CONFIG_PATH "/usr/lib/pkgconfig" ":"
 ww_app_delim PKG_CONFIG_PATH "/usr/local/lib/pkgconfig" ":"
+ww_app_delim PKG_CONFIG_PATH "/opt/lib/pkgconfig" ":"
 
 # Set CPPFLAGS
 ww_app_include CPPFLAGS "$HOME/include"
-ww_app_include CPPFLAGS "/opt/include"
 ww_app_include CPPFLAGS "/usr/local/include"
+ww_app_include CPPFLAGS "/opt/include"
 
 # Set CFLAGS
 ww_app_delim CFLAGS "-g" " "
@@ -163,6 +163,8 @@ plugins=(
   git
   $plugins
 )
+
+ZSH_DISABLE_COMPFIX=true
 
 source $ZSH/oh-my-zsh.sh
 
