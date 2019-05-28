@@ -1,5 +1,0 @@
-function setPrompt {
-  setopt PROMPT_SUBST  # set up the prompt
-  SHORT_HOST=`hostname | perl -lne 'print $1 if m/^([^\.]*)/'`
-  PROMPT="%B\$USER@\$SHORT_HOST%b:%!> "
-}

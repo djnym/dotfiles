@@ -1,7 +1,7 @@
 cwd=$(shell pwd)
 relative=`echo $(cwd) | sed 's:^$(HOME)/::'`
 bin_files=$(wildcard bin/*)
-not_dot=bin
+not_dot=bin Makefile
 dot_files=$(filter-out $(not_dot), $(wildcard *))
 
 install-dot-files:

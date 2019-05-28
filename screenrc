@@ -1,8 +1,0 @@
-defscrollback 10000
-hardstatus alwayslastline '%t[%n] %h'
-nethack on
-startup_message off
-vbell on
-windowlist title  'Num Name%35=Status%=Flags'
-windowlist string '%3n %t%35=%h%=%f'
-defutf8 on
