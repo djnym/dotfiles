@@ -1,5 +1,3 @@
-echo "$HOME/.zshrc"
-
 # wigwam path tools, make it easier to setup paths further down
 ww_has_componant_usage="ww_has_componant DELIM VALUE COMPONANT"
 ww_has_componant () {
