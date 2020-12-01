@@ -14,13 +14,14 @@ showHelp () {
 get_name() {
   case $1 in
     centos65)
-      NAME="centos65"
+#      NAME="centos65"
+      NAME="centos6-anthonymolinaro"
       ;;
     centos54)
       NAME="centos54"
       ;;
     centos7)
-      NAME="centos7"
+      NAME="centos7-anthonymolinaro"
       ;;
   esac
 }

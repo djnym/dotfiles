@@ -330,6 +330,7 @@ ww_app_path MANPATH "/usr/man"
 ww_app_path MANPATH "/usr/share/man"
 ww_app_path MANPATH "/man"
 ww_app_path MANPATH "/opt/man"
+ww_app_path MANPATH "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/share/man/"
 
 # Set PKG_CONFIG_PATH
 ww_app_delim PKG_CONFIG_PATH "$HOME/lib/pkgconfig" ":"
