@@ -1,0 +1,73 @@
+#!/bin/bash
+
+progname=$(basename $0)
+
+function usage() {
+  echo "Usage: $progname [-nvh] <user>"
+  echo ""
+  echo "    where"
+  echo "        -n - dryrun, list but don't make changes"
+  echo "        -v - verbose output"
+  echo "        -h - help"
+  echo ""
+}
+
+timerange="-1 hour"
+dryrun=0
+verbose=0
+safari=0
+chrome=0
+profile=
+while getopts "nvht:p:" flag; do
+  case "${flag}" in
+    n) dryrun=1 ;;
+    v) verbose=1 ;;
+    t) timerange=${OPTARG} ;;
+    p) profile=${OPTARG} ;;
+    h) usage ;;
+    ?) usage ;;
+    esac
+done
+shift $((OPTIND-1))
+
+user=$1
+
+echo "check history for $timerange"
+
+SAFARI=/Users/$user/Library/Safari/History.db
+declare -a CHROME
+for P in /Users/$user/Library/Application\ Support/Google/Chrome/Profile* ; do
+  E="$P/History"
+  if test -f "$E" ; then
+    if [[ "$E" != *"previews_hint_cache_store"* ]]; then
+       if [[ "$E" != *"optimization_guide_model_and_features_store"* ]]; then
+         CHROME+=("$E")
+       fi
+    fi
+  fi
+done
+
+cp "$SAFARI" /tmp/SAFARI-History
+output=$(sqlite3 -csv /tmp/SAFARI-History "SELECT datetime(visit_time + 978307200, 'unixepoch', 'localtime') as human_readable_time, title, url FROM history_visits INNER JOIN history_items ON history_items.id = history_visits.history_item WHERE human_readable_time BETWEEN datetime('now','localtime','$timerange') AND datetime('now', 'localtime') ORDER BY visit_time DESC")
+rm /tmp/SAFARI-History
+if test "$output" != ""; then
+  echo "SAFARI,SAFARI,$SAFARI"
+  echo "$output"
+fi
+
+iMax=${#CHROME[@]}
+for ((iItem=0; iItem < iMax ; iItem++)); do
+  file=${CHROME[$iItem]}
+  case "$file" in
+    *$profile*)
+      cp "$file" /tmp/CHROME-History-$iItem
+      output=$(sqlite3 -csv /tmp/CHROME-History-$iItem "SELECT datetime(last_visit_time/1000000-11644473600,'unixepoch','localtime') as human_readable_time,title,url from  urls WHERE human_readable_time BETWEEN datetime('now','localtime','$timerange') AND datetime('now', 'localtime') order by last_visit_time desc")
+      rm /tmp/CHROME-History-$iItem
+      if test "$output" != ""; then
+        echo "CHROME,CHROME,$file"
+        echo "$output"
+      fi
+      ;;
+  esac
+#  SELECT urls.url AS URL, (visits.visit_duration / 3600 / 1000000) || ' hours ' || strftime('%M minutes %S seconds', visits.visit_duration / 1000000 / 86400.0) AS Duration FROM urls LEFT JOIN visits ON urls.id = visits.url
+done
