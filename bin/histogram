@@ -19,6 +19,21 @@ sub getnum {
   }
 }
 
+# Compact a list of elements into a range string.
+sub compact_ranges {
+  my @e = sort { $a <=> $b } @_;
+  my @r;
+  while (scalar(@e) > 0) {
+    my $s = shift(@e);
+    my $p = $s;
+    while (scalar(@e) > 0 && $e[0] == $p + 1) {
+      $p = shift(@e);
+    }
+    push(@r, $s == $p ? $s : "$s-$p");
+  }
+  return join(',', @r);
+}
+
 sub is_numeric { defined scalar &getnum }
 
 sub printUsage {
@@ -44,6 +59,7 @@ my($showHistogram)=1;
 my($def_percentile)=99;
 my $binsize=10;
 my @percentile = ();
+my $compact = 0;
 
 my($arg);
 while ($arg=shift(@ARGV)) {
@@ -61,6 +77,8 @@ while ($arg=shift(@ARGV)) {
     $binsize=shift(@ARGV);
   } elsif (($arg eq '-g') || ($arg eq '--no-histogram')) {
     $showHistogram=0;
+  } elsif (($arg eq '-c') || ($arg eq '--compact')) {
+    $compact=1;
   } elsif (($arg eq '-h') || ($arg eq '-?') || ($arg eq '--help')) {
     printUsage();
   }
@@ -82,16 +100,25 @@ my($out)=new IO::File("> $output_file")
 
 my($line);
 my(%hist);
+my @values;
 while ($line=$in->getline())
 {
   my($value) = getnum($line);
   next if ( ! defined($value) || $value eq '' );
+
+  if ($compact) {
+    push @values, $value;
+  }
   $count++;
   $hist{$value}++;
   if ( $value < $min ) { $min = $value; }
   if ( $value > $max ) { $max = $value; }
   if ( $value > 500 ) { $errors++; }
   $sum += $value;
+}
+if ($compact) {
+  print compact_ranges(@values)."\n";
+  exit 0;
 }
 
 my($avg)=($count!=0)?sprintf("%3.5f",$sum/$count):"NaN";

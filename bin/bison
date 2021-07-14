@@ -1,6 +1,5 @@
 #!/bin/sh
 
-env
 if test -n "$BISON3" ; then
   exec /usr/local/opt/bison/bin/bison $*
 else
