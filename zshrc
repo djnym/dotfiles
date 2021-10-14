@@ -382,8 +382,8 @@ else
   export VISUAL=vi
 fi
 
-if test -f .zshrc.local ; then
-  source .zshrc.local
+if test -f ~/.zshrc.local ; then
+  source ~/.zshrc.local
 fi
 
 # export vars

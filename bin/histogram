@@ -125,9 +125,10 @@ my($avg)=($count!=0)?sprintf("%3.5f",$sum/$count):"NaN";
 
 my($stddev)=0;
 foreach my $n (keys %hist) {
-  $stddev += ($n - $avg)**2;
+  my $repeated = $hist{$n};
+  $stddev += $repeated * ($n - $avg)**2;
 }
-$stddev = sqrt( $stddev / $count );
+$stddev = sqrt( $stddev / ($count-1) );
 
 my(%bins);
 my($current_bin)=0;
