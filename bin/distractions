@@ -1,0 +1,30 @@
+#!/bin/sh
+
+showHelp() {
+  echo "Usage: `basename $0` <option>";
+  echo;
+  echo "Options:";
+  echo " on    = Turn on distractions";
+  echo " off   = Turn off distractions";
+}
+
+on() {
+  sudo perl -i -pe 's!^!#distractionon ! if m!#distractionoff$!' /etc/hosts
+}
+
+off() {
+  sudo perl -i -pe 's!^#distractionon !!' /etc/hosts
+}
+
+if [ $# = 0 ]; then
+    showHelp;
+fi
+
+while [ $# -gt 0 ]; do
+  arg=$1;
+  case $arg in
+    "on" ) on  ; break ;;
+    "off") off ; break ;;
+    *) cat /etc/hosts ; break ;;
+  esac
+done

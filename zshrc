@@ -501,3 +501,10 @@ bindkey "^R" history-incremental-search-backward
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+#[ ! -z "${DEBUG}" ] && echo "zshrc : PATH END '$PATH'"
+#[ ! -z "${DEBUG}" ] && echo "zshrc : done"
+#
+#PERL_MB_OPT="--install_base \"/Users/molinaro/perl5\""; export PERL_MB_OPT;
+#PERL_MM_OPT="INSTALL_BASE=/Users/molinaro/perl5"; export PERL_MM_OPT;
+#
+#ww_app_path PERL5LIB "$HOME/perl5/lib/perl5"

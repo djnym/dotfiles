@@ -29,6 +29,7 @@ set tabstop=4
 set title
 set titlestring=%{$USER}@%{hostname()}:\ VIM\ %t
 set ttyfast
+set modeline
 set nowrapscan
 set viminfo='0,f0,\"0,h
 set visualbell t_vb=

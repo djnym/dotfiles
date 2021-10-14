@@ -1,0 +1,5 @@
+#!/bin/bash
+
+date=$(date +%Y-%m-%dT%H:%M:%S%z)
+minecraft=$(ps auwwx | grep -i java | grep -v grep | wc -l | tr -d ' ')
+touch /Users/molinaro/minecraft.log && echo "$date,$minecraft" >> /Users/molinaro/minecraft.log
