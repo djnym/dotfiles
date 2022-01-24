@@ -1,0 +1,6 @@
+#!/bin/bash
+
+if test -n "$K8S_CONTEXT"; then
+    export KUBECONFIG=~/.kube/${K8S_CONTEXT}:~/.kube/config
+fi
+exec /usr/local/bin/kubectl "$@"

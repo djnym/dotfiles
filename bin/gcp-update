@@ -1,0 +1,5 @@
+#!/bin/sh
+
+brew reinstall --cask google-cloud-sdk
+gcloud components install beta
+gcloud components install pubsub-emulator

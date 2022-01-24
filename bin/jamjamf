@@ -1,0 +1,59 @@
+#!/bin/sh
+
+showHelp () {
+  echo "Usage: `basename $0` <option>";
+  echo;
+  echo "Options:";
+  echo "";
+  echo "   on  - turn on jamf"
+  echo "   off - turn off jamf"
+}
+
+if [ "$EUID" -ne 0 ]
+  then echo "Please run using sudo"
+  exit
+fi
+
+if [ $# = 0 ]; then
+    showHelp
+    exit 0
+fi
+
+while [ $# -gt 0 ]; do
+  arg=$1;
+  case $arg in
+    "off" )
+      if jamf > /dev/null ; then
+        echo "JAMF is already OFF"
+      else
+        jamf removeMDMProfile
+        jamf removeFramework
+        launchctl remove com.jamfsoftware.task.policy
+        launchctl remove com.jamfsoftware.task.policy.startup
+        launchctl remove com.jamfsoftware.task.startssh
+        cd /usr/local/jamf;
+        mkdir backup;
+        cp bin/* backup/
+        echo "#!/bin/sh\necho 'dummy' > /dev/null" > bin/jamf
+        echo "#!/bin/sh\necho 'dummy' > /dev/null" > bin/jamfAgent
+        chmod a+x /usr/local/jamf/bin/jamf
+        chmod a+x /usr/local/jamf/bin/jamfAgent
+      fi
+      break ;;
+    "on" )
+      if test -f /usr/local/jamf/backup/jamf ; then
+        cp /usr/local/jamf/backup/jamf /usr/local/jamf/bin/jamf
+      fi
+      if test -f /usr/local/jamf/backup/jamfAgent ; then
+        cp /usr/local/jamf/backup/jamfAgent /usr/local/jamf/bin/jamfAgent
+      fi
+      jamf manage
+      break ;;
+    "help" | * )
+      echo "help:"
+      showHelp;
+      break ;;
+  esac
+done
+
+exit 0

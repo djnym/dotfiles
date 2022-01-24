@@ -1,0 +1,46 @@
+#!/bin/sh
+
+
+verbose=0
+while getopts "vh" flag; do
+  case "${flag}" in
+    v) verbose=1 ;;
+    h) usage ;;
+    ?) usage ;;
+  esac
+done
+shift $((OPTIND-1))
+
+env=$1
+shift
+
+case $env in
+    ccp)
+      K8S_CONTEXT=gke_ox-openaudience-prod_us-east4-a_us-east4-openaudience-prod-e6d370ab-gke
+      ;;
+    prod)
+      K8S_CONTEXT=gke_ox-openaudience-prod_us-east4_ox-openaudience-prod-2-us-east4
+      ;;
+    devint)
+      K8S_CONTEXT=gke_ox-openaudience-devint_us-east4_ox-openaudience-devint-2-us-east4
+      ;;
+    qa)
+      K8S_CONTEXT=gke_ox-openaudience-qa_us-central1_ox-openaudience-qa-2-us-central1
+      ;;
+    jenkins1)
+      K8S_CONTEXT=gke_ox-ci-cd-prod_us-east4_ox-ci-cd-prod-1-us-east4
+      ;;
+    local)
+      K8S_CONTEXT=docker-desktop
+      ;;
+    *)
+      K8S_CONTEXT=
+      ;;
+esac
+
+ARGS=
+if test -n "$K8S_CONTEXT"; then
+  ARGS="--context $K8S_CONTEXT"
+fi
+
+exec /usr/local/bin/k9s $ARGS $*
